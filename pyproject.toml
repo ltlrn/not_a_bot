@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "not-a-bot"
+version = "0.1.0"
+description = ""
+authors = ["Robert Levchenko <ro.le.00@mail.ru>"]
+readme = "README.md"
+packages = [{include = "not_a_bot"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
