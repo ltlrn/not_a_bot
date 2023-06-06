@@ -1,0 +1,19 @@
+1. https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions---Your-first-Bot
+
+   general tutorial
+
+2. https://github.com/python-telegram-bot/python-telegram-bot/wiki/Builder-Pattern
+
+   about how the application object has built
+
+3. https://docs.python-telegram-bot.org/en/stable/telegram.ext.applicationbuilder.html
+
+   ApplicationBuilder class docs
+
+4. https://github.com/python-telegram-bot/python-telegram-bot/wiki/Writing-Tests
+
+   for unit and integration testting
+
+   4.1. https://telegra.ph/How-a-Userbot-superacharges-your-Telegram-Bot-07-09
+
+       Userbot

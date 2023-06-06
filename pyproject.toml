@@ -8,6 +8,9 @@ packages = [{include = "not_a_bot"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+python-telegram-bot = "^20.3"
+black = "^23.3.0"
+python-dotenv = "^1.0.0"
 
 
 [build-system]
