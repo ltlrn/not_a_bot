@@ -1,0 +1,2 @@
+- mistakes counter: some logic, that can count mistake sequance and return
+  proper answers from MISTAKES endpoint.
