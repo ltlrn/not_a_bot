@@ -44,6 +44,14 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    url = "http://localhost:8000/api/tasks/1/"
+    response = requests.get(url).json()
+    question = response.get("question")
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=question)
+
+
 async def catificate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     "Функция - котификатор"
     url = get_a_pet(CAT)
@@ -67,12 +75,18 @@ if __name__ == "__main__":
     cat_handler = CommandHandler("cat", catificate)
     dog_handler = CommandHandler("dog", dogificate)
 
+    task_handler = CommandHandler("task", task)
+
     # echo of non-empty, non-command messages
     echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
+
+    # may be "add_handlerS" instead?
 
     app.add_handler(start_handler)
     app.add_handler(echo_handler)
     app.add_handler(cat_handler)
     app.add_handler(dog_handler)
+
+    app.add_handler(task_handler)
 
     app.run_polling()
