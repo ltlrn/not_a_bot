@@ -1,29 +1,29 @@
 version: '3.5'
 services:
-  # bot_db:
-  #   image: postgres:13.0-alpine
-  #   restart: always
-  #   volumes:
-  #     - pg_value:/val/lib/postgresql/data/
-  #   env_file:
-  #     - ./.env
+  bot_db:
+    image: postgres:13.0-alpine
+    restart: always
+    volumes:
+      - pg_value:/val/lib/postgresql/data/
+    env_file:
+      - ./.env
 
-  # bot_api:
-  #   container_name: bot_api
+  bot_api:
+    container_name: bot_api
 
-  #   # image: ignazigelherz/bot_api:latest
-  #   build:
-  #    context: ../backend
-  #    dockerfile: bot_back/Dockerfile
-  #   restart: always
+    # image: ignazigelherz/bot_api:latest
+    build:
+      dockerfile: Dockerfile
+      context: ../backend
+    restart: always
 
-  #   volumes: 
-  #     - static_value:/app/backend_static/
-  #     - media_value:/app/backend_media/
-  #   depends_on:
-  #     - bot_db
-  #   env_file:
-  #     - ./.env
+    volumes: 
+      - static_value:/app/backend_static/
+      - media_value:/app/backend_media/
+    depends_on:
+      - bot_db
+    env_file:
+      - ./.env
 
   bot_corpus:
     build:
@@ -35,22 +35,22 @@ services:
     env_file:
       - ./.env
 
-#   nginx:
-#     image: nginx:1.19.3
-#     ports:
-#       - "80:80"
-#     volumes:
-#       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-#       # - ../frontend/build:/usr/share/nginx/html/
-#       # - ../docs/:/usr/share/nginx/html/api/docs/
+  nginx:
+    image: nginx:1.19.3
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # - ../frontend/build:/usr/share/nginx/html/
+      # - ../docs/:/usr/share/nginx/html/api/docs/
 
-#       - static_value:/etc/nginx/html/backend_static/
-#       - media_value:/etc/nginx/html/backend_media/
-#     depends_on:
-#       - bot_api
-#       - bot_corpus
+      - static_value:/etc/nginx/html/backend_static/
+      - media_value:/etc/nginx/html/backend_media/
+    depends_on:
+      - bot_api
+      - bot_corpus
 
-# volumes:
-#   static_value:
-#   media_value:
-#   pg_value:
+volumes:
+  static_value:
+  media_value:
+  pg_value:
