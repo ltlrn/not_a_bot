@@ -1,10 +1,17 @@
-version: '3.5'
+version: '3.9'
 services:
   bot_db:
-    image: postgres:13.0-alpine
-    restart: always
+    container_name: bot_db
+    image: postgres:14.6-alpine
+    environment:
+      POSTGRES_DB: bot_db
+      POSTGRES_USER: not_a_bot
+      POSTGRES_PASSWORD: automata
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    ports:
+      - "5432:5432"
     volumes:
-      - pg_value:/val/lib/postgresql/data/
+      - bot_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
 
@@ -16,6 +23,11 @@ services:
       dockerfile: Dockerfile
       context: ../backend
     restart: always
+    environment:
+        DB_HOST: bot_db
+        DB_NAME: bot_db
+        DB_USER: not_a_bot
+        DB_PASS: automata
 
     volumes: 
       - static_value:/app/backend_static/
@@ -26,16 +38,18 @@ services:
       - ./.env
 
   bot_corpus:
+    container_name: bot_body
     build:
       context: ../bot
       dockerfile: Dockerfile
     restart: always
-    # depends_on:
-    #   - bot_api
+    depends_on:
+      - bot_api
     env_file:
       - ./.env
 
   nginx:
+    container_name: bot_nginx
     image: nginx:1.19.3
     ports:
       - "80:80"
@@ -48,9 +62,8 @@ services:
       - media_value:/etc/nginx/html/backend_media/
     depends_on:
       - bot_api
-      - bot_corpus
 
 volumes:
   static_value:
   media_value:
-  pg_value:
+  bot_data:

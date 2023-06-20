@@ -14,7 +14,16 @@ SECRET_KEY = "django-insecure-b81_=!p@4oy4+)vk2y9yq3e_ikdvv&f43nx-q@y*qrd0t@*whw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "*",
+    "localhost"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1',
+    'https://127.0.0.1',
+    'http://127.0.0.1:8000'
+]
 
 
 # Application definition
@@ -75,14 +84,25 @@ WSGI_APPLICATION = "bot_back.wsgi.application"
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
-        'NAME': os.getenv('DB_NAME', default='ignaz'),
-        'USER': os.getenv('POSTGRES_USER', default='ignaz'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='automata'),
-        'HOST': os.getenv('DB_HOST', default='127.0.0.1'),
-        'PORT': os.getenv('DB_PORT', default='5432')
+      'ENGINE': os.environ.get('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': os.environ.get('DB_NAME', default='bot_db'),
+        'USER': os.environ.get('DB_USER', default='not_a_bot'),
+    'PASSWORD': os.environ.get('DB_PASS', default='automata'),
+        'HOST': os.environ.get('DB_HOST', default='bot_db'),
+        'PORT': os.environ.get('DB_PORT', default='5432')
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': os.getenv('DB_ENGINE'),
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('POSTGRES_USER'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT')
+#     }
+# }
 
 
 
