@@ -30,7 +30,7 @@ def get_a_pet(api: str) -> str:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, 
+        chat_id=update.effective_chat.id,
         text="I am not a bot, this is a mistake!"
     )
 
@@ -43,6 +43,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Получить задачу из api."""
     url = "http://localhost/api/tasks/1/"
 
     session = requests.Session()
@@ -58,14 +59,14 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def catificate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    "Функция - котификатор"
+    """Функция - котификатор."""
     url = get_a_pet(CAT)
 
     await context.bot.send_photo(chat_id=update.effective_chat.id, photo=url)
 
 
 async def dogificate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    "Собакирование"
+    """Собакирование."""
     url = get_a_pet(DOG)
 
     await context.bot.send_photo(chat_id=update.effective_chat.id, photo=url)
