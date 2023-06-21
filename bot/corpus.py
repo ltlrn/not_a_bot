@@ -44,7 +44,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Получить задачу из api."""
-    url = "http://localhost/api/tasks/1/"
+    url = "http://195.2.93.26/api/tasks/1/"
 
     session = requests.Session()
     retry = Retry(connect=3, backoff_factor=0.5)
