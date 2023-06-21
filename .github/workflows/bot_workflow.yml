@@ -98,4 +98,4 @@ jobs:
             sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/not-a-bot:latest
             sudo docker-compose up -d --build
 
-            data >> update_log.txt
+            date >> update_log.txt
