@@ -10,7 +10,8 @@ from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
 from urllib3.util.retry import Retry
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
 )
 
 load_dotenv()
@@ -29,7 +30,8 @@ def get_a_pet(api: str) -> str:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
-        chat_id=update.effective_chat.id, text="I am not a bot, this is a mistake!"
+        chat_id=update.effective_chat.id, 
+        text="I am not a bot, this is a mistake!"
     )
 
 

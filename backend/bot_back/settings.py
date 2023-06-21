@@ -84,10 +84,10 @@ WSGI_APPLICATION = "bot_back.wsgi.application"
 
 DATABASES = {
     'default': {
-      'ENGINE': os.environ.get('DB_ENGINE', default='django.db.backends.postgresql'),
+        'ENGINE': os.environ.get('DB_ENGINE', default='django.db.backends.postgresql'),
         'NAME': os.environ.get('DB_NAME', default='bot_db'),
         'USER': os.environ.get('DB_USER', default='not_a_bot'),
-    'PASSWORD': os.environ.get('DB_PASS', default='automata'),
+        'PASSWORD': os.environ.get('DB_PASS', default='automata'),
         'HOST': os.environ.get('DB_HOST', default='bot_db'),
         'PORT': os.environ.get('DB_PORT', default='5432')
     }
@@ -103,8 +103,6 @@ DATABASES = {
 #         'PORT': os.getenv('DB_PORT')
 #     }
 # }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

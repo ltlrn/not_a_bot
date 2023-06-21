@@ -1,6 +1,6 @@
 from django.contrib.admin import ModelAdmin, register
 
-from .models import Task, VocabularReactions, VocabularJokes
+from .models import Task, VocabularJokes, VocabularReactions
 
 
 @register(Task)
