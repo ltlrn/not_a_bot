@@ -1,17 +1,13 @@
 import logging
-import requests
-
-from telegram import Update
-from telegram.ext import (
-    filters,
-    ApplicationBuilder,
-    ContextTypes,
-    CommandHandler,
-    MessageHandler,
-)
-from dotenv import load_dotenv
 from os import getenv
 
+import requests
+from dotenv import load_dotenv
+from requests.adapters import HTTPAdapter
+from telegram import Update
+from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
+                          MessageHandler, filters)
+from urllib3.util.retry import Retry
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -45,8 +41,15 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    url = "http://localhost:8000/api/tasks/1/"
-    response = requests.get(url).json()
+    url = "http://localhost/api/tasks/1/"
+
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+
+    response = session.get(url).json()
     question = response.get("question")
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=question)
