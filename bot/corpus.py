@@ -4,7 +4,7 @@ from os import getenv
 import requests
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 from urllib3.util.retry import Retry
@@ -14,6 +14,7 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+logger = logging.getLogger(__name__)
 load_dotenv()
 
 TOKEN = getenv("BOT_TOKEN")
@@ -29,9 +30,21 @@ def get_a_pet(api: str) -> str:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    chat = update.effective_chat
+    name = update.message.chat.first_name
+
+    buttons = ReplyKeyboardMarkup(
+        [
+            ['/task', '/cat', '/dog'],
+        ],
+        resize_keyboard=True
+    )
+
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="I am not a bot, this is a mistake!"
+        chat_id=chat.id,
+        text=f'Приветики, {name}, я проснулся. Напиши-ка мне ещё что-нибудь',
+        reply_markup=buttons,
     )
 
 
