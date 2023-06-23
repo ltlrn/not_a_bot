@@ -1,5 +1,7 @@
 # Телеграм-бот для подготовки к ОГЭ по химии
 
+![example branch parameter](https://github.com/github/ltlrn/not_a_bot/actions/workflows/bot_workflow.yml/badge.svg/badge.svg?branch=main)
+
    Бот в перспективе может: присылать задания из различных 
    вариантов общего государственного экзамена по химии и проверять ответы 
 
