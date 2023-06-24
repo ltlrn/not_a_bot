@@ -4,14 +4,13 @@ from os import getenv
 import requests
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import (ApplicationBuilder, CommandHandler, ContextTypes,
                           MessageHandler, filters)
 from urllib3.util.retry import Retry
 
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
@@ -30,20 +29,19 @@ def get_a_pet(api: str) -> str:
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     chat = update.effective_chat
     name = update.message.chat.first_name
 
     buttons = ReplyKeyboardMarkup(
         [
-            ['/task', '/cat', '/dog'],
+            ["/task", "/cat", "/dog"],
         ],
-        resize_keyboard=True
+        resize_keyboard=True,
     )
 
     await context.bot.send_message(
         chat_id=chat.id,
-        text=f'Приветики, {name}, я проснулся. Напиши-ка мне ещё что-нибудь',
+        text=f"Приветики, {name}, я проснулся. Напиши-ка мне ещё что-нибудь",
         reply_markup=buttons,
     )
 
