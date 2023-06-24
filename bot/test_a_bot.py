@@ -5,14 +5,15 @@ import requests
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
-                      ReplyKeyboardMarkup, Update)
+                      ReplyKeyboardMarkup, Update, MenuButton, MenuButtonCommands)
+
 from telegram.ext import (ApplicationBuilder, CallbackQueryHandler,
                           CommandHandler, ContextTypes, ConversationHandler,
                           MessageHandler, filters)
 from urllib3.util.retry import Retry
 
-from callbacks import (END_ROUTES, FOUR, ONE, START_ROUTES, THREE, TWO, end,
-                       four, one, start_over, three, two)
+from callbacks import (END_ROUTES, FOUR, FIVE, SIX, ONE, START_ROUTES, THREE, TWO,
+                       four, one, back, apply, three, two)
 from test_util import GREETINGS
 
 logging.basicConfig(
@@ -36,6 +37,7 @@ def get_a_pet(api: str) -> str:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Get user that sent /start and log his name
+    # await context.bot.set_chat_menu_button(MenuButtonCommands)
 
     user = update.message.from_user
     logger.info("User %s started the conversation.", user.first_name)
@@ -49,6 +51,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ],
         resize_keyboard=True,
     )
+
+    menu_button_1 = MenuButton(str)
 
     await context.bot.send_message(
         chat_id=chat.id,
@@ -78,6 +82,9 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     question = response.get("question")
     answer = response.get("answer")
 
+    context.user_data['answer'] = answer
+    context.user_data['choices'] = []
+
     await context.bot.send_message(chat_id=update.effective_chat.id, text=question)
 
     keyboard = [
@@ -86,13 +93,18 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("II", callback_data=str(TWO)),
             InlineKeyboardButton("III", callback_data=str(THREE)),
             InlineKeyboardButton("IV", callback_data=str(FOUR)),
+            InlineKeyboardButton("⟵", callback_data=str(FIVE)),
+            InlineKeyboardButton("☑️", callback_data=str(SIX)),
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     # Send message with text and appended InlineKeyboard
     await update.message.reply_text(
-        "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте! ", reply_markup=reply_markup
-    )
+        "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте! ",
+        reply_markup=reply_markup
+        ),
+        
+        # reply_markup
     # Tell ConversationHandler that we're in state `FIRST` now
     return START_ROUTES
 
@@ -135,11 +147,11 @@ if __name__ == "__main__":
                 CallbackQueryHandler(two, pattern="^" + str(TWO) + "$"),
                 CallbackQueryHandler(three, pattern="^" + str(THREE) + "$"),
                 CallbackQueryHandler(four, pattern="^" + str(FOUR) + "$"),
+                CallbackQueryHandler(apply, pattern="^" + str(SIX) + "$"),
+                CallbackQueryHandler(back, pattern="^" + str(FIVE) + "$"),
             ],
-            END_ROUTES: [
-                CallbackQueryHandler(start_over, pattern="^" + str(ONE) + "$"),
-                CallbackQueryHandler(end, pattern="^" + str(TWO) + "$"),
-            ],
+
+            END_ROUTES: [],
         },
         fallbacks=[CommandHandler("task", task)],
     )
