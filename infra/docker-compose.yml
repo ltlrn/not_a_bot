@@ -18,10 +18,10 @@ services:
   bot_api:
     container_name: bot_api
 
-    image: ignazigelherz/bot-api:latest
-    # build:
-    #   dockerfile: Dockerfile
-    #   context: ../backend
+    # image: ignazigelherz/bot-api:latest
+    build:
+      dockerfile: Dockerfile
+      context: ../backend
     restart: always
     environment:
         DB_HOST: bot_db
@@ -37,17 +37,17 @@ services:
     env_file:
       - ./.env
 
-  bot_corpus:
-    container_name: bot_body
-    image: ignazigelherz/not-a-bot:latest
-    # build:
-    #   context: ../bot
-    #   dockerfile: Dockerfile
-    restart: always
-    depends_on:
-      - bot_api
-    env_file:
-      - ./.env
+  # bot_corpus:
+  #   container_name: bot_body
+  #   image: ignazigelherz/not-a-bot:latest
+  #   # build:
+  #   #   context: ../bot
+  #   #   dockerfile: Dockerfile
+  #   restart: always
+  #   depends_on:
+  #     - bot_api
+  #   env_file:
+  #     - ./.env
 
   nginx:
     container_name: bot_nginx

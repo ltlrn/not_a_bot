@@ -4,17 +4,43 @@ from os import getenv
 import requests
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
-from telegram import (InlineKeyboardButton, InlineKeyboardMarkup,
-                      ReplyKeyboardMarkup, Update, MenuButton, MenuButtonCommands)
+from telegram import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
+    Update,
+    MenuButton,
+    MenuButtonCommands,
+)
 
-from telegram.ext import (ApplicationBuilder, CallbackQueryHandler,
-                          CommandHandler, ContextTypes, ConversationHandler,
-                          MessageHandler, filters)
+from telegram.ext import (
+    ApplicationBuilder,
+    CallbackQueryHandler,
+    CommandHandler,
+    ContextTypes,
+    ConversationHandler,
+    MessageHandler,
+    filters,
+)
 from urllib3.util.retry import Retry
 
-from callbacks import (END_ROUTES, FOUR, FIVE, SIX, ONE, START_ROUTES, THREE, TWO,
-                       four, one, back, apply, three, two)
-from test_util import GREETINGS
+from callbacks import (
+    END_ROUTES,
+    FOUR,
+    FIVE,
+    SIX,
+    ONE,
+    START_ROUTES,
+    THREE,
+    TWO,
+    four,
+    one,
+    back,
+    apply,
+    three,
+    two,
+)
+from test_util import GREETINGS, keyboard_constructor
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -23,7 +49,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-TOKEN = getenv("TEST_BOT_TOKEN")
+TOKEN = getenv("BOT_TOKEN")
 CAT = getenv("CAT_URL")
 DOG = getenv("DOG_URL")
 
@@ -70,6 +96,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Получить задачу из api."""
+    # url = "http://195.2.93.26/api/tasks/2/"
     url = "http://195.2.93.26/api/tasks/2/"
 
     session = requests.Session()
@@ -79,32 +106,23 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session.mount("https://", adapter)
 
     response = session.get(url).json()
-    question = response.get("question")
+    question = response.get("image")
     answer = response.get("answer")
+    photo = requests.get(question).content
 
-    context.user_data['answer'] = answer
-    context.user_data['choices'] = []
+    context.user_data["answer"] = answer
+    context.user_data["choices"] = []
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=question)
+    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
 
-    keyboard = [
-        [
-            InlineKeyboardButton("I", callback_data=str(ONE)),
-            InlineKeyboardButton("II", callback_data=str(TWO)),
-            InlineKeyboardButton("III", callback_data=str(THREE)),
-            InlineKeyboardButton("IV", callback_data=str(FOUR)),
-            InlineKeyboardButton("⟵", callback_data=str(FIVE)),
-            InlineKeyboardButton("☑️", callback_data=str(SIX)),
-        ]
-    ]
+    keyboard = keyboard_constructor(6)
     reply_markup = InlineKeyboardMarkup(keyboard)
     # Send message with text and appended InlineKeyboard
     await update.message.reply_text(
-        "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте! ",
-        reply_markup=reply_markup
-        ),
-        
-        # reply_markup
+        "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте! ", reply_markup=reply_markup
+    ),
+
+    # reply_markup
     # Tell ConversationHandler that we're in state `FIRST` now
     return START_ROUTES
 
@@ -139,18 +157,21 @@ if __name__ == "__main__":
 
     # Stages
 
-    conv_handler = ConversationHandler(
+    task_handler = ConversationHandler(
         entry_points=[CommandHandler("task", task)],
         states={
             START_ROUTES: [
-                CallbackQueryHandler(one, pattern="^" + str(ONE) + "$"),
-                CallbackQueryHandler(two, pattern="^" + str(TWO) + "$"),
-                CallbackQueryHandler(three, pattern="^" + str(THREE) + "$"),
-                CallbackQueryHandler(four, pattern="^" + str(FOUR) + "$"),
-                CallbackQueryHandler(apply, pattern="^" + str(SIX) + "$"),
-                CallbackQueryHandler(back, pattern="^" + str(FIVE) + "$"),
+                CallbackQueryHandler(one, pattern="^" + str(2) + "$"),
+                CallbackQueryHandler(two, pattern="^" + str(3) + "$"),
+                CallbackQueryHandler(three, pattern="^" + str(4) + "$"),
+                CallbackQueryHandler(four, pattern="^" + str(5) + "$"),
+                # CallbackQueryHandler(five, pattern="^" + str(6) + "$"),
+                # CallbackQueryHandler(six, pattern="^" + str(7) + "$"),
+                # CallbackQueryHandler(seven, pattern="^" + str(8) + "$"),
+                # CallbackQueryHandler(eight, pattern="^" + str(9) + "$"),
+                CallbackQueryHandler(back, pattern="^" + str(0) + "$"),
+                CallbackQueryHandler(apply, pattern="^" + str(1) + "$"),
             ],
-
             END_ROUTES: [],
         },
         fallbacks=[CommandHandler("task", task)],
@@ -166,6 +187,6 @@ if __name__ == "__main__":
     app.add_handler(cat_handler)
     app.add_handler(dog_handler)
 
-    app.add_handler(conv_handler)
+    app.add_handler(task_handler)
 
     app.run_polling()

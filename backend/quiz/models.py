@@ -8,6 +8,7 @@ class Task(models.Model):
 
     task_index = models.CharField("индекс")
     question = models.TextField("вопрос")
+    image = models.ImageField("картинка", upload_to="tasks/")
     answer = models.IntegerField("правильный ответ")
 
     class Meta:

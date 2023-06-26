@@ -8,7 +8,7 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("task_index", "question", "answer")
+        fields = ("task_index", "question", "answer", "image")
 
 
 class ReactionsSerializer(serializers.ModelSerializer):
