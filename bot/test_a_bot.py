@@ -39,6 +39,7 @@ from callbacks import (
     apply,
     three,
     two,
+    callback_constructor
 )
 from test_util import GREETINGS, keyboard_constructor
 
@@ -96,7 +97,8 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Получить задачу из api."""
-    # url = "http://195.2.93.26/api/tasks/2/"
+    
+
     url = "http://195.2.93.26/api/tasks/2/"
 
     session = requests.Session()
@@ -111,15 +113,17 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     photo = requests.get(question).content
 
     context.user_data["answer"] = answer
+    context.user_data["answer_vars"] = list(range(6))
     context.user_data["choices"] = []
 
+    logger.info("Task has loaded from the server")
     await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
 
-    keyboard = keyboard_constructor(6)
+    keyboard = keyboard_constructor(len(context.user_data["answer_vars"]) + 2)
     reply_markup = InlineKeyboardMarkup(keyboard)
     # Send message with text and appended InlineKeyboard
     await update.message.reply_text(
-        "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте! ", reply_markup=reply_markup
+        "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте!", reply_markup=reply_markup
     ),
 
     # reply_markup
@@ -154,24 +158,48 @@ if __name__ == "__main__":
     dog_handler = CommandHandler("dog", dogificate)
 
     task_handler = CommandHandler("task", task)
+    
+    # quiz callback routes: ########################################
 
-    # Stages
+    quiz_callbacks = []
+
+    for raw_number in range(1, 9):
+        quiz_callbacks.append(callback_constructor(raw_number))
+
+    start_routes = []
+
+    for func, pattern in zip(quiz_callbacks, range(2, 8)):
+        start_routes.append(
+            CallbackQueryHandler(func, pattern="^" + str(pattern) + "$")
+        )
+
+    service_callbacks = [
+        CallbackQueryHandler(back, pattern="^" + str(0) + "$"),
+        CallbackQueryHandler(apply, pattern="^" + str(1) + "$"),
+    ]
+
+    routes = start_routes + service_callbacks
+   
+
+    # ##############################################################
 
     task_handler = ConversationHandler(
         entry_points=[CommandHandler("task", task)],
         states={
-            START_ROUTES: [
-                CallbackQueryHandler(one, pattern="^" + str(2) + "$"),
-                CallbackQueryHandler(two, pattern="^" + str(3) + "$"),
-                CallbackQueryHandler(three, pattern="^" + str(4) + "$"),
-                CallbackQueryHandler(four, pattern="^" + str(5) + "$"),
-                # CallbackQueryHandler(five, pattern="^" + str(6) + "$"),
-                # CallbackQueryHandler(six, pattern="^" + str(7) + "$"),
-                # CallbackQueryHandler(seven, pattern="^" + str(8) + "$"),
-                # CallbackQueryHandler(eight, pattern="^" + str(9) + "$"),
-                CallbackQueryHandler(back, pattern="^" + str(0) + "$"),
-                CallbackQueryHandler(apply, pattern="^" + str(1) + "$"),
-            ],
+            START_ROUTES: routes,
+            # [
+            #     CallbackQueryHandler(one, pattern="^" + str(2) + "$"),
+            #     CallbackQueryHandler(two, pattern="^" + str(3) + "$"),
+            #     CallbackQueryHandler(three, pattern="^" + str(4) + "$"),
+            #     CallbackQueryHandler(four, pattern="^" + str(5) + "$"),
+            #     # CallbackQueryHandler(five, pattern="^" + str(6) + "$"),
+            #     # CallbackQueryHandler(six, pattern="^" + str(7) + "$"),
+            #     # CallbackQueryHandler(seven, pattern="^" + str(8) + "$"),
+            #     # CallbackQueryHandler(eight, pattern="^" + str(9) + "$"),
+
+            #     CallbackQueryHandler(back, pattern="^" + str(0) + "$"),
+            #     CallbackQueryHandler(apply, pattern="^" + str(1) + "$"),
+            # ],
             END_ROUTES: [],
         },
         fallbacks=[CommandHandler("task", task)],
