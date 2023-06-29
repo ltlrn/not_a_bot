@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.db import models
+
+User = settings.AUTH_USER_MODEL
 
 
 class Task(models.Model):
@@ -6,53 +9,110 @@ class Task(models.Model):
     изображения и правильный вариант ответа.
     """
 
-    task_index = models.CharField("индекс")
-    question = models.TextField("вопрос")
-    image = models.ImageField("картинка", upload_to="tasks/")
-    answer = models.IntegerField("правильный ответ")
+    variant = models.CharField("вариант")
+    question_text = models.TextField("вопрос", blank=True)
+    question_image = models.ImageField("картинка", upload_to="tasks/")
 
     class Meta:
         verbose_name = "Задание"
         verbose_name_plural = "Задания"
 
     def __str__(self):
-        return self.task_index
+        return self.variant
 
 
-class VocabularReactions(models.Model):
-    """Словарный запас бота: реакции."""
+class Answer(models.Model):
+    """Модель вариантов ответов, ассоциированых с каждым заданием."""
 
-    mistake_light = models.CharField(
-        "небольшая ошибка", unique=True
-    )  # may be unlimited with Postgres
-    mistake_hard = models.CharField("ошибка", unique=True)
-    mistake_critical = models.CharField("грубая ошибка", unique=True)
-    reaction = models.CharField("реакция", unique=True)
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="answers", verbose_name="задания"
+    )
 
-    class Meta:
-        verbose_name = "Набор реакций"
-        verbose_name_plural = "Реакции"
-
-
-class VocabularJokes(models.Model):
-    """Словарный запас бота: шутки."""
-
-    polite_joke = models.CharField("вежливая шутка", unique=True)
-    stupid_joke = models.CharField("тупая шутка", unique=True)
-    sarcasm = models.CharField("сарказм", unique=True)
+    text = models.CharField("текст ответа")
+    is_correct = models.BooleanField("правильный")
 
     class Meta:
-        verbose_name = "Набор шуток"
-        verbose_name_plural = "Шутки"
+        verbose_name = "Ответ"
+        verbose_name_plural = "Ответы"
+
+    def __str__(self):
+        return self.text
 
 
-class VocabularFacts(models.Model):
-    """Словарный запас бота: факты."""
+class Hint(models.Model):
+    """Модель подсказок, доступных для заданий."""
 
-    pass
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="hints", verbose_name="задания"
+    )
+
+    text = models.CharField("текст подсказки")
+
+    class Meta:
+        verbose_name = "Подсказка"
+        verbose_name_plural = "Подсказки"
+
+    def __str__(self):
+        return self.text
 
 
-class VocabularHints(models.Model):
-    """Словарный запас бота: подсказки."""
+class Statistic(models.Model):
+    """Статистика выполнения заданий."""
 
-    pass
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="stats", verbose_name="статистика"
+    )
+
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name="stats", verbose_name="статистика"
+    )
+
+    solved_at = models.DateTimeField(
+        "решение зафиксировано", auto_now_add=True, db_index=True
+    )
+
+    is_correct = models.BooleanField("решение верно")
+    with_hint = models.BooleanField("подсказка взята")
+    solving_time = models.DateTimeField("время решения")
+
+    class Meta:
+        verbose_name = "Статистика"
+
+    def __str__(self):
+        return self.solved_at
+
+
+class Tag(models.Model):
+    """Теги для словарного запаса."""
+
+    name = models.CharField("тег", max_length=200)
+
+    slug = models.SlugField(
+        "слаг тега",
+        max_length=200,
+        null=True,
+        unique=True,
+    )
+
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
+
+    def __str__(self):
+        return self.name
+
+
+class Vocabular(models.Model):
+    """Словарный запас бота."""
+
+    sentence = models.TextField("высказывание")
+    tag = models.ForeignKey(
+        Tag, on_delete=models.CASCADE, verbose_name="тег", related_name="tags"
+    )
+
+    class Meta:
+        verbose_name = "Тег"
+        verbose_name_plural = "Теги"
+
+    def __str__(self):
+        return self.sentence[:50]

@@ -77,6 +77,8 @@ DATABASES = {
     }
 }
 
+WSGI_APPLICATION = "bot_back.wsgi.application"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
