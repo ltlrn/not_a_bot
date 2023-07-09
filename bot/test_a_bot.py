@@ -113,7 +113,7 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     photo = requests.get(question).content
 
     context.user_data["answer"] = answer
-    context.user_data["answer_vars"] = list(range(6))
+    context.user_data["answer_vars"] = list(range(5))
     context.user_data["choices"] = []
 
     logger.info("Task has loaded from the server")

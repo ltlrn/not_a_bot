@@ -8,7 +8,13 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("task_index", "question", "answer", "image")
+        fields = (
+            "id",
+            "task_index",
+            "question", 
+            "answer", 
+            "image"
+        )
 
 
 class AnswerSerializer(serializers.ModelSerializer):
@@ -32,7 +38,16 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ("task_index", "question", "answer", "image")
+        fields = ("id", "name", "slug")
+
+
+class VocSerializer(serializers.ModelSerializer):
+    """Сериализатор модели Vocabular."""
+    # tag = TagSerializer(read_only=True)    
+
+    class Meta:
+        model = Vocabular
+        fields = ("id", "sentence", "tag")
 
 
 class StatSerializer(serializers.ModelSerializer):
