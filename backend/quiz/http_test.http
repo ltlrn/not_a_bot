@@ -1,0 +1,31 @@
+@host = http://localhost:8000
+@host_dist = http://195.2.93.26/api/
+
+@token = Token 98c0cd2b775a9e0cb65c8b7345050fab474a47cf
+
+@user_token = Token 360cda8ce4cd1bd50c2bca376d96a9640c79bd40
+
+
+### TASKS LIST
+
+GET {{ host_dist }}tasks/ HTTP/1.1
+content-type: application/json
+
+
+### TASKS GET
+
+GET {{ host_dist }}tasks/2/ HTTP/1.1
+content-type: application/json
+
+
+### USERS GET
+
+### USERS LIST
+
+### USERS POST
+
+### USERS PATCH
+
+### MY STAT GET
+
+### MY STAT POST
