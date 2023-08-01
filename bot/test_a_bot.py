@@ -50,7 +50,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-TOKEN = getenv("BOT_TOKEN")
+TOKEN = getenv("TEST_BOT_TOKEN")
 CAT = getenv("CAT_URL")
 DOG = getenv("DOG_URL")
 

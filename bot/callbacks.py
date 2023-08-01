@@ -20,6 +20,7 @@ def callback_constructor(raw_number: int):
         button_text=text_adder(f"[ {callback_number} ]", query)
        
         await query.answer()
+        
         keyboard = keyboard_constructor(buttons_amount)
         reply_markup = InlineKeyboardMarkup(keyboard)
     
