@@ -188,15 +188,20 @@ async def grade_input(
     ]
     keyboard = InlineKeyboardMarkup(buttons)
 
-    if not user_data.get(START_OVER):
-        query = update.callback_query
-        await query.answer(text='refuse to say a name')
-        print(query.data, 'NNNNNNNNNN')
-        if query.data == SKIP_NAME:
-            user_data[NAMELESS] = True
-        else:
-            await query.edit_message_text('введение класса', reply_markup=keyboard)
+    # if not user_data.get(START_OVER):
+    #     query = update.callback_query
+    #     await query.answer(text='refuse to say a name')
+    #     print(query.data, 'NNNNNNNNNN')
+    #     if query.data == SKIP_NAME:
+    #         user_data[NAMELESS] = True
+    #     else:
+    #         await query.edit_message_text('введение класса', reply_markup=keyboard)
 
+    # else:
+    if not user_data.get('ask_name'):
+        query = update.callback_query
+        await query.answer()
+        await query.edit_message_text('введение класса', reply_markup=keyboard)
     else:
         await update.message.reply_text(
             text='класс сюда', reply_markup=keyboard
@@ -216,10 +221,20 @@ async def finish_sign_up(
     sex = user_data.get('sex')
 
     msg = user_data.get('current_message')
-    await msg.reply_text(
-        text=f'Name is {name}, grade is {grade}, gender is {sex}'
-    )
-    user_data[START_OVER] = False
+    if msg:
+        await msg.reply_text(
+            text=f'Name is {name}, grade is {grade}, gender is {sex}'
+        )
+    # else:
+    #     query = update.callback_query
+    #     query.answer()
+    #     await query.edit_message_text(text=f'Name is {name}, grade is {grade}, gender is {sex}')
+
+    print(f'Name is {name}, grade is {grade}, gender is {sex}')
+   
+    user_data['ask_grade'] = False
+    user_data['ask_name'] = False
+    
 
     return ConversationHandler.END
 
@@ -238,22 +253,43 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     return ConversationHandler.END
 
 
-async def ask_for_input(
+async def ask_name(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> str:
     """Prompt user to input data for selected feature."""
     query = update.callback_query
-    print(query.data, 'SSSSSSSSSSSS')
     prompt_text = context.user_data.get(query.data)
-    if query.data == 'grade_input':
-        print('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
-        context.user_data[NAMELESS] = True
+    text = 'ИМЯ ВВЕДИ'
 
     await query.answer(text=query.data)
-    await query.edit_message_text(text=prompt_text)
+    await query.edit_message_text(text=text)
     
+    user_data = context.user_data
+
+    user_data['ask_grade'] = False
+    user_data['ask_name'] = True
+    user_data.get('current_message')
+
     return TYPING
 
+
+async def ask_grade(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> str:
+    """Prompt user to input data for selected feature."""
+    query = update.callback_query
+    prompt_text = context.user_data.get(query.data)
+    text = 'ВВЕДИ КЛАСС'
+
+    user_data = context.user_data
+    user_data['ask_grade'] = True
+    user_data['ask_name'] = False
+
+    await query.answer(text=query.data)
+    await query.edit_message_text(text=text)
+    user_data.get('current_message')
+
+    return TYPING
 
 async def save_input(
     update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -261,14 +297,14 @@ async def save_input(
     """Save input for feature and return to feature selection."""
     user_data = context.user_data
 
-    if user_data.get(START_OVER) or user_data.get(NAMELESS):
+    if user_data['ask_grade'] and not user_data['ask_name']:
         user_data['grade'] = update.message.text
         return await finish_sign_up(update, context)
-
-    user_data['first_name'] = update.message.text
-    user_data[START_OVER] = True
-
-    return await grade_input(update, context)
+    
+    elif user_data['ask_name'] and not user_data['ask_grade']:
+        user_data['first_name'] = update.message.text
+        print('I AM HERE!!')
+        return await grade_input(update, context)
 
 
 def main() -> None:
@@ -296,7 +332,7 @@ def main() -> None:
             ],
             NAME_CHOICE: [
                 CallbackQueryHandler(
-                    ask_for_input, pattern='^' + str(INPUT_NAME) + '$'
+                    ask_name, pattern='^' + str(INPUT_NAME) + '$'
                 ),
                 CallbackQueryHandler(
                     grade_input, pattern='^' + str(SKIP_NAME) + '$'
@@ -304,7 +340,7 @@ def main() -> None:
             ],
             GRADE_CHOICE: [
                 CallbackQueryHandler(
-                    ask_for_input, pattern='^' + str(INPUT_GRADE) + '$'
+                    ask_grade, pattern='^' + str(INPUT_GRADE) + '$'
                 ),
                 CallbackQueryHandler(
                     finish_sign_up, pattern='^' + str(END) + '$'
