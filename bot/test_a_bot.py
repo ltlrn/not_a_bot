@@ -36,7 +36,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO,
 )
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 load_dotenv()
 
 TOKEN = getenv('BOT_TOKEN')
@@ -83,7 +83,7 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data['answer_vars'] = list(range(5))
     context.user_data['choices'] = []
 
-    logger.info('Task has loaded from the server')
+    # logger.info('Task has loaded from the server')
     await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo)
 
     keyboard = keyboard_constructor(len(context.user_data['answer_vars']) + 2)
@@ -101,7 +101,7 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TOKEN).concurrent_updates(True).build()
 
-    start_handler = CommandHandler('start', start)
+    # start_handler = CommandHandler('start', start)
 
     task_handler = CommandHandler('task', task)
     quiz_callbacks = []
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
     # may be "add_handlerS" instead?
 
-    app.add_handler(start_handler)
+    # app.add_handler(start_handler)
 
     app.add_handler(signup_handler)
     app.add_handler(task_handler)

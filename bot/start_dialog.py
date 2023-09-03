@@ -25,7 +25,7 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
-TOKEN = getenv('TEST_BOT_TOKEN')
+TOKEN = getenv('BOT_TOKEN')
 
 SIGN_UP = 2
 GENDER_CHOICE = 0

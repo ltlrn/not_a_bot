@@ -63,10 +63,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     context.user_data['name_input'] = 'Напечатайте ваше имя'
     context.user_data['grade_input'] = 'Ваш класс, пожалуйста'
 
-    buttons = ReplyKeyboardMarkup([['/task', '/cat', '/dog'],], resize_keyboard=True,)
+    # buttons = ReplyKeyboardMarkup([['/task', '/cat', '/dog'],], resize_keyboard=True,)
 
     await context.bot.send_message(
-        chat_id=chat.id, text=GREETINGS[0] % name, reply_markup=buttons,
+        chat_id=chat.id, text=GREETINGS[0] % name, #reply_markup=buttons,
     )
 
     buttons = [

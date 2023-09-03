@@ -1,4 +1,4 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 from test_util import text_adder, text_subber, keyboard_constructor
 
@@ -359,5 +359,11 @@ class SignUp:
 
         user_data['ask_grade'] = False
         user_data['ask_name'] = False
+        # chat = update.effective_chat
+
+        # buttons = ReplyKeyboardMarkup([['/task', '/profile'],], resize_keyboard=True,)
+        # await context.bot.send_message(
+        #     chat_id=chat.id, text='Начинаем учиться!', reply_markup=buttons,
+        # )
 
         return ConversationHandler.END
