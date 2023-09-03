@@ -19,8 +19,7 @@ from os import getenv
 load_dotenv()
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO,
 )
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -69,9 +68,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     buttons = [
         [
             InlineKeyboardButton(text='Уточним?', callback_data=str(ADD_USER)),
-            InlineKeyboardButton(
-                text='Нее, и так нормально', callback_data=str(END)
-            ),
+            InlineKeyboardButton(text='Нее, и так нормально', callback_data=str(END)),
         ]
     ]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -84,10 +81,7 @@ async def profile(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Select an action: Adding parent/child or show data."""
-    text = (
-        'Здесь будет предложение выбрать регистрацию '
-        'или продолжать инкогнито'
-    )
+    text = 'Здесь будет предложение выбрать регистрацию ' 'или продолжать инкогнито'
 
     context.user_data['name_input'] = 'Напечатайте ваше имя'
     context.user_data['grade_input'] = 'Ваш класс, пожалуйста'
@@ -95,12 +89,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
 
     buttons = [
         [
-            InlineKeyboardButton(
-                text='Знакомство', callback_data=str(ADD_USER)
-            ),
-            InlineKeyboardButton(
-                text='Заниматься инкогнито', callback_data=str(END)
-            ),
+            InlineKeyboardButton(text='Знакомство', callback_data=str(ADD_USER)),
+            InlineKeyboardButton(text='Заниматься инкогнито', callback_data=str(END)),
         ]
     ]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -108,9 +98,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     # If we're starting over we don't need to send a new message
     if context.user_data.get(START_AGAIN):
         await update.callback_query.answer()
-        await update.callback_query.edit_message_text(
-            text=text, reply_markup=keyboard
-        )
+        await update.callback_query.edit_message_text(text=text, reply_markup=keyboard)
     else:
         text = 'Здесь пространное приветственное сообщение'
         await update.message.reply_text(text=text, reply_markup=keyboard)
@@ -120,9 +108,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     return SIGN_UP
 
 
-async def gender_choose(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def gender_choose(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer(text=query.data)
 
@@ -131,11 +117,7 @@ async def gender_choose(
             InlineKeyboardButton(text='сударь', callback_data=str(M)),
             InlineKeyboardButton(text='сударыня', callback_data=str(F)),
         ],
-        [
-            InlineKeyboardButton(
-                text='Оставим это', callback_data=str(SKIP_GENDER)
-            ),
-        ],
+        [InlineKeyboardButton(text='Оставим это', callback_data=str(SKIP_GENDER)),],
     ]
     keyboard = InlineKeyboardMarkup(buttons)
 
@@ -144,25 +126,15 @@ async def gender_choose(
     return GENDER_CHOICE
 
 
-async def name_input(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def name_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer(query.data)
     user_data = context.user_data
     user_data['sex'] = query.data
 
     buttons = [
-        [
-            InlineKeyboardButton(
-                text='Представьтесь', callback_data=str(INPUT_NAME)
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text='Что за допрос?', callback_data=str(SKIP_NAME)
-            )
-        ],
+        [InlineKeyboardButton(text='Представьтесь', callback_data=str(INPUT_NAME))],
+        [InlineKeyboardButton(text='Что за допрос?', callback_data=str(SKIP_NAME))],
     ]
     keyboard = InlineKeyboardMarkup(buttons)
 
@@ -173,17 +145,11 @@ async def name_input(
     return NAME_CHOICE
 
 
-async def grade_input(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def grade_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_data = context.user_data
 
     buttons = [
-        [
-            InlineKeyboardButton(
-                text='Ваш класс?', callback_data=str(INPUT_GRADE)
-            ),
-        ],
+        [InlineKeyboardButton(text='Ваш класс?', callback_data=str(INPUT_GRADE)),],
         [InlineKeyboardButton(text='Высший класс!', callback_data=str(END)),],
     ]
     keyboard = InlineKeyboardMarkup(buttons)
@@ -203,18 +169,14 @@ async def grade_input(
         await query.answer()
         await query.edit_message_text('введение класса', reply_markup=keyboard)
     else:
-        await update.message.reply_text(
-            text='класс сюда', reply_markup=keyboard
-        )
+        await update.message.reply_text(text='класс сюда', reply_markup=keyboard)
 
     user_data['current_message'] = update.message
 
     return GRADE_CHOICE
 
 
-async def finish_sign_up(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> int:
+async def finish_sign_up(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_data = context.user_data
     name = user_data.get('first_name')
     grade = user_data.get('grade')
@@ -222,19 +184,16 @@ async def finish_sign_up(
 
     msg = user_data.get('current_message')
     if msg:
-        await msg.reply_text(
-            text=f'Name is {name}, grade is {grade}, gender is {sex}'
-        )
+        await msg.reply_text(text=f'Name is {name}, grade is {grade}, gender is {sex}')
     # else:
     #     query = update.callback_query
     #     query.answer()
     #     await query.edit_message_text(text=f'Name is {name}, grade is {grade}, gender is {sex}')
 
     print(f'Name is {name}, grade is {grade}, gender is {sex}')
-   
+
     user_data['ask_grade'] = False
     user_data['ask_name'] = False
-    
 
     return ConversationHandler.END
 
@@ -246,16 +205,12 @@ async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await query.answer()
 
     user_data = context.user_data
-    await query.edit_message_text(
-        text=f"Итакъ...{user_data.get('first_name')}"
-    )
+    await query.edit_message_text(text=f"Итакъ...{user_data.get('first_name')}")
 
     return ConversationHandler.END
 
 
-async def ask_name(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> str:
+async def ask_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Prompt user to input data for selected feature."""
     query = update.callback_query
     prompt_text = context.user_data.get(query.data)
@@ -263,7 +218,7 @@ async def ask_name(
 
     await query.answer(text=query.data)
     await query.edit_message_text(text=text)
-    
+
     user_data = context.user_data
 
     user_data['ask_grade'] = False
@@ -273,9 +228,7 @@ async def ask_name(
     return TYPING
 
 
-async def ask_grade(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> str:
+async def ask_grade(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Prompt user to input data for selected feature."""
     query = update.callback_query
     prompt_text = context.user_data.get(query.data)
@@ -291,16 +244,15 @@ async def ask_grade(
 
     return TYPING
 
-async def save_input(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
-) -> str:
+
+async def save_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
     """Save input for feature and return to feature selection."""
     user_data = context.user_data
 
     if user_data['ask_grade'] and not user_data['ask_name']:
         user_data['grade'] = update.message.text
         return await finish_sign_up(update, context)
-    
+
     elif user_data['ask_name'] and not user_data['ask_grade']:
         user_data['first_name'] = update.message.text
         print('I AM HERE!!')
@@ -317,38 +269,24 @@ def main() -> None:
         ],
         states={
             SIGN_UP: [
-                CallbackQueryHandler(
-                    gender_choose, pattern='^' + str(ADD_USER) + '$'
-                ),
+                CallbackQueryHandler(gender_choose, pattern='^' + str(ADD_USER) + '$'),
                 CallbackQueryHandler(stop, pattern='^' + str(END) + '$'),
             ],
             GENDER_CHOICE: [
                 CallbackQueryHandler(
                     name_input, pattern='^' + str(M) + '|' + str(F) + '$'
                 ),
-                CallbackQueryHandler(
-                    name_input, pattern='^' + str(SKIP_GENDER) + '$'
-                ),
+                CallbackQueryHandler(name_input, pattern='^' + str(SKIP_GENDER) + '$'),
             ],
             NAME_CHOICE: [
-                CallbackQueryHandler(
-                    ask_name, pattern='^' + str(INPUT_NAME) + '$'
-                ),
-                CallbackQueryHandler(
-                    grade_input, pattern='^' + str(SKIP_NAME) + '$'
-                ),
+                CallbackQueryHandler(ask_name, pattern='^' + str(INPUT_NAME) + '$'),
+                CallbackQueryHandler(grade_input, pattern='^' + str(SKIP_NAME) + '$'),
             ],
             GRADE_CHOICE: [
-                CallbackQueryHandler(
-                    ask_grade, pattern='^' + str(INPUT_GRADE) + '$'
-                ),
-                CallbackQueryHandler(
-                    finish_sign_up, pattern='^' + str(END) + '$'
-                ),
+                CallbackQueryHandler(ask_grade, pattern='^' + str(INPUT_GRADE) + '$'),
+                CallbackQueryHandler(finish_sign_up, pattern='^' + str(END) + '$'),
             ],
-            TYPING: [
-                MessageHandler(filters.TEXT & ~filters.COMMAND, save_input)
-            ],
+            TYPING: [MessageHandler(filters.TEXT & ~filters.COMMAND, save_input)],
             STOPPING: [
                 CommandHandler('start', start),
                 CallbackQueryHandler(stop, pattern='^' + str(END) + '$'),

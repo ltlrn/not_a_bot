@@ -2,162 +2,153 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 from test_util import text_adder, text_subber, keyboard_constructor
 
-START_ROUTES, END_ROUTES = range(2)
-ONE, TWO, THREE, FOUR, FIVE, SIX = range(6)
 
+class TaskCallbacks:
+    """Коробочка с функциями обратного вызова для команды /task."""
 
-def callback_constructor(raw_number: int):
-    async def callback_func(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    @staticmethod
+    def callback_constructor(raw_number: int):
+        async def callback_func(
+            update: Update, context: ContextTypes.DEFAULT_TYPE
+        ) -> int:
 
-        answer_vars = context.user_data['answer_vars']
+            answer_vars = context.user_data['answer_vars']
 
-        buttons_amount = len(answer_vars) + 2
-        callback_number = raw_number
+            buttons_amount = len(answer_vars) + 2
+            callback_number = raw_number
+            query = update.callback_query
+
+            button_text = text_adder(f'[ {callback_number} ]', query)
+
+            await query.answer()
+
+            keyboard = keyboard_constructor(buttons_amount)
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            await query.edit_message_text(
+                text=button_text, reply_markup=reply_markup,
+            )
+
+            context.user_data['choices'].append(callback_number)
+
+            return StateConstants.START_ROUTES
+
+        return callback_func
+
+    @staticmethod
+    async def apply(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         query = update.callback_query
 
-        button_text = text_adder(f'[ {callback_number} ]', query)
+        await query.answer()
+        await query.edit_message_text(text='Итакъ...')
+
+        if context.user_data['choices'] == [context.user_data['answer']]:
+            await query.edit_message_text(text='Браво! Академики рукоплещутъ!')
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text='Это дѣйствительно правильный отвѣтъ!',
+            )
+        else:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text='Феноменальный бредъ...'
+            )
+
+        return ConversationHandler.END
+
+    @staticmethod
+    async def back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        query = update.callback_query
+
+        answer_vars = context.user_data['answer_vars']
+        buttons_amount = len(answer_vars) + 2
 
         await query.answer()
 
         keyboard = keyboard_constructor(buttons_amount)
+
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await query.edit_message_text(
-            text=button_text, reply_markup=reply_markup,
+            text=text_subber(query), reply_markup=reply_markup,
         )
 
-        context.user_data['choices'].append(callback_number)
+        context.user_data['choices'].pop()
 
-        return START_ROUTES
+        return StateConstants.START_ROUTES
 
-    return callback_func
+    @staticmethod
+    async def one(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        query = update.callback_query
+        answer = context.user_data['answer']  # answer thing
 
+        await query.answer()
 
-async def apply(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
+        keyboard = keyboard_constructor(6)
 
-    await query.answer()
-    await query.edit_message_text(text='Итакъ...')
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    if context.user_data['choices'] == [context.user_data['answer']]:
-        await query.edit_message_text(text='Браво! Академики рукоплещутъ!')
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text='Это дѣйствительно правильный отвѣтъ!',
-        )
-    else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text='Феноменальный бредъ...'
+        await query.edit_message_text(
+            text=text_adder('[ 1 ]', query), reply_markup=reply_markup,
         )
 
-    return ConversationHandler.END
+        context.user_data['choices'].append(1)
 
+        return StateConstants.START_ROUTES
 
-async def back(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
+    @staticmethod
+    async def two(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Show new choice of buttons"""
 
-    answer_vars = context.user_data['answer_vars']
-    buttons_amount = len(answer_vars) + 2
+        query = update.callback_query
 
-    await query.answer()
+        await query.answer()
 
-    keyboard = keyboard_constructor(buttons_amount)
+        keyboard = keyboard_constructor(6)
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text(
+            text=text_adder('[ 2 ]', query), reply_markup=reply_markup,
+        )
 
-    await query.edit_message_text(
-        text=text_subber(query), reply_markup=reply_markup,
-    )
+        context.user_data['choices'].append(2)
 
-    context.user_data['choices'].pop()
+        return StateConstants.START_ROUTES
 
-    return START_ROUTES
+    @staticmethod
+    async def three(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Show new choice of buttons. This is the end point of the conversation."""
 
+        query = update.callback_query
+        await query.answer()
 
-# class CallbackConstructor:
-#     def __init__(self):
-#         pass
+        keyboard = keyboard_constructor(6)
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-#     async def callback_function(
-#         update: Update, context: ContextTypes.DEFAULT_TYPE
-#     ) -> int:
-#         pass
+        await query.edit_message_text(
+            text=text_adder('[ 3 ]', query), reply_markup=reply_markup,
+        )
 
+        context.user_data['choices'].append(3)
 
-async def one(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    query = update.callback_query
-    answer = context.user_data['answer']  # answer thing
+        return StateConstants.START_ROUTES
 
-    await query.answer()
+    @staticmethod
+    async def four(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Show new choice of buttons"""
 
-    keyboard = keyboard_constructor(6)
+        query = update.callback_query
+        await query.answer()
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+        keyboard = keyboard_constructor(6)
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await query.edit_message_text(
-        text=text_adder('[ 1 ]', query), reply_markup=reply_markup,
-    )
+        await query.edit_message_text(
+            text=text_adder('[ 4 ]', query), reply_markup=reply_markup,
+        )
 
-    context.user_data['choices'].append(1)
+        context.user_data['choices'].append(4)
 
-    return START_ROUTES
-
-
-async def two(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show new choice of buttons"""
-
-    query = update.callback_query
-
-    await query.answer()
-
-    keyboard = keyboard_constructor(6)
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await query.edit_message_text(
-        text=text_adder('[ 2 ]', query), reply_markup=reply_markup,
-    )
-
-    context.user_data['choices'].append(2)
-
-    return START_ROUTES
-
-
-async def three(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show new choice of buttons. This is the end point of the conversation."""
-
-    query = update.callback_query
-    await query.answer()
-
-    keyboard = keyboard_constructor(6)
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await query.edit_message_text(
-        text=text_adder('[ 3 ]', query), reply_markup=reply_markup,
-    )
-
-    context.user_data['choices'].append(3)
-
-    return START_ROUTES
-
-
-async def four(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    """Show new choice of buttons"""
-
-    query = update.callback_query
-    await query.answer()
-
-    keyboard = keyboard_constructor(6)
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await query.edit_message_text(
-        text=text_adder('[ 4 ]', query), reply_markup=reply_markup,
-    )
-
-    context.user_data['choices'].append(4)
-
-    return START_ROUTES
+        return StateConstants.START_ROUTES
 
 
 class StateConstants:
@@ -183,6 +174,9 @@ class StateConstants:
         END,
     ) = range(14)
 
+    START_ROUTES, END_ROUTES = range(14, 16)
+    ONE, TWO, THREE, FOUR, FIVE, SIX = range(16, 22)
+
     M = 'male'
     F = 'female'
     INPUT_NAME = 'name_input'
@@ -198,9 +192,7 @@ class SignUp:
     регистрации в боте."""
 
     @staticmethod
-    async def gender_choose(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    async def gender_choose(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Функция обратного вызова, отвечающая за выбор пола при регистрации в боте.
         Возвращает целое число, которое впоследствии позволяет переключить состояние
         обработчика ConversationHandler на GENDER_CHOICE."""
@@ -219,8 +211,7 @@ class SignUp:
             ],
             [
                 InlineKeyboardButton(
-                    text='Оставим это',
-                    callback_data=str(StateConstants.SKIP_GENDER),
+                    text='Оставим это', callback_data=str(StateConstants.SKIP_GENDER),
                 ),
             ],
         ]
@@ -231,9 +222,7 @@ class SignUp:
         return StateConstants.GENDER_CHOICE
 
     @staticmethod
-    async def name_input(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    async def name_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Функция обратного вызова, предлогающая ввести имя или пропустить этот шаг.
         Возвращает константу для переключения состояния обработчика на NAME_CHOICE."""
 
@@ -245,14 +234,12 @@ class SignUp:
         buttons = [
             [
                 InlineKeyboardButton(
-                    text='Представьтесь',
-                    callback_data=str(StateConstants.INPUT_NAME),
+                    text='Представьтесь', callback_data=str(StateConstants.INPUT_NAME),
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text='Что за допрос?',
-                    callback_data=str(StateConstants.SKIP_NAME),
+                    text='Что за допрос?', callback_data=str(StateConstants.SKIP_NAME),
                 )
             ],
         ]
@@ -264,17 +251,14 @@ class SignUp:
         return StateConstants.NAME_CHOICE
 
     @staticmethod
-    async def grade_input(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+    async def grade_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         """Функция обратного вызова, отвечающая за выбор вводить ли класс или пропустить этот шаг.
         Возвращает константу для перевода состояния обработчика на GRADE_CHOICE."""
 
         buttons = [
             [
                 InlineKeyboardButton(
-                    text='Ваш класс?',
-                    callback_data=str(StateConstants.INPUT_GRADE),
+                    text='Ваш класс?', callback_data=str(StateConstants.INPUT_GRADE),
                 ),
             ],
             [
@@ -290,83 +274,77 @@ class SignUp:
         if not user_data.get('ask_name'):
             query = update.callback_query
             await query.answer()
-            await query.edit_message_text(
-                'введение класса', reply_markup=keyboard
-            )
+            await query.edit_message_text('введение класса', reply_markup=keyboard)
         else:
-            await update.message.reply_text(
-                text='класс сюда', reply_markup=keyboard
-            )
+            await update.message.reply_text(text='класс сюда', reply_markup=keyboard)
 
         user_data['current_message'] = update.message
 
         return StateConstants.GRADE_CHOICE
 
     @staticmethod
-    async def ask_name(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> str:
-        """Prompt user to input data for selected feature."""
+    async def ask_name(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+        """Приглашение для ввода имени, переводит ConversationHandler в состояние TYPING."""
 
         query = update.callback_query
         prompt_text = context.user_data.get(query.data)
         text = 'ИМЯ ВВЕДИ'
-    
+
         await query.answer(text=query.data)
         await query.edit_message_text(text=text)
-        
+
         user_data = context.user_data
-    
+
         user_data['ask_grade'] = False
         user_data['ask_name'] = True
         user_data.get('current_message')
-    
+
         return StateConstants.TYPING
 
     @staticmethod
-    async def ask_grade(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> str:
-        """Prompt user to input data for selected feature."""
+    async def ask_grade(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+        """Приглашение для ввода имени, переводит ConversationHandler в состояние TYPING."""
+
         query = update.callback_query
         prompt_text = context.user_data.get(query.data)
         text = 'ВВЕДИ КЛАСС'
-    
+
         user_data = context.user_data
         user_data['ask_grade'] = True
         user_data['ask_name'] = False
-    
+
         await query.answer(text=query.data)
         await query.edit_message_text(text=text)
         user_data.get('current_message')
-    
+
         return StateConstants.TYPING
-    
+
     @staticmethod
-    async def save_input(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> str:
-        """Save input for feature and return to feature selection."""
+    async def save_input(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str:
+        """Сотраняет ввод, в зависимости от состояния диалога возвращает 
+        соответствующую функцию обратного вызова.
+        """
+
         user_data = context.user_data
-    
+
         if user_data['ask_grade'] and not user_data['ask_name']:
             user_data['grade'] = update.message.text
             return await SignUp.finish_sign_up(update, context)
-        
+
         elif user_data['ask_name'] and not user_data['ask_grade']:
             user_data['first_name'] = update.message.text
             print('I AM HERE!!')
             return await SignUp.grade_input(update, context)
-        
-    @staticmethod    
-    async def finish_sign_up(
-        update: Update, context: ContextTypes.DEFAULT_TYPE
-    ) -> int:
+
+    @staticmethod
+    async def finish_sign_up(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        """Завершает диалог, выводит собранную информацию."""
+
         user_data = context.user_data
         name = user_data.get('first_name')
         grade = user_data.get('grade')
         sex = user_data.get('sex')
-    
+
         msg = user_data.get('current_message')
         if msg:
             await msg.reply_text(
@@ -376,10 +354,10 @@ class SignUp:
         #     query = update.callback_query
         #     query.answer()
         #     await query.edit_message_text(text=f'Name is {name}, grade is {grade}, gender is {sex}')
-    
+
         print(f'Name is {name}, grade is {grade}, gender is {sex}')
-       
+
         user_data['ask_grade'] = False
         user_data['ask_name'] = False
-    
+
         return ConversationHandler.END

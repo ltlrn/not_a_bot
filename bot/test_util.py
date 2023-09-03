@@ -4,10 +4,10 @@ from exceptions import OutOfRangeError
 
 GREETINGS = [
     (
-        "Вы, стало быть, крѣпко рѣшили освоить Химію? Что же, %s - "
-        "мое почтеніе, сударь! Я, разумѣется, совершенно уже не "
-        "тотъ блестящій ученый, однако же всѣ-таки "
-        "могу оказаться полезенъ..."
+        'Вы, стало быть, крѣпко рѣшили освоить Химію? Что же, %s - '
+        'мое почтеніе, сударь! Я, разумѣется, совершенно уже не '
+        'тотъ блестящій ученый, однако же всѣ-таки '
+        'могу оказаться полезенъ...'
     )
 ]
 
@@ -24,11 +24,9 @@ def keyboard_constructor(buttons_amount: int) -> list:
     """
 
     if buttons_amount < 2 or buttons_amount > 8:
-        raise OutOfRangeError(
-            "Аргумент buttons_amount за пределами диапазона"
-        )
+        raise OutOfRangeError('Аргумент buttons_amount за пределами диапазона')
 
-    layout_set = ["⟵", "☑️", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"]
+    layout_set = ['⟵', '☑️', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII']
     callback_data_set = range(buttons_amount)
 
     keyboard = []
@@ -45,7 +43,7 @@ def keyboard_constructor(buttons_amount: int) -> list:
 
 def text_adder(addition: str, query) -> str:
     text = query.message.text
-    if not text.startswith("["):
+    if not text.startswith('['):
         return addition
     else:
         return text + addition
@@ -53,11 +51,11 @@ def text_adder(addition: str, query) -> str:
 
 def text_subber(query) -> str:
     text = query.message.text
-    if not text.startswith("["):
+    if not text.startswith('['):
         return text
 
     text = text[:-5]
     if not text:
-        return "Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте!"
+        return 'Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте!'
 
     return text

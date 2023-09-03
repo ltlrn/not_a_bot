@@ -5,7 +5,7 @@ from urllib3.util.retry import Retry
 from test_util import keyboard_constructor
 from callbacks import callback_constructor
 
-url = "http://195.2.93.26/api/tasks/1/"
+url = 'http://195.2.93.26/api/tasks/1/'
 
 # session = requests.Session()
 # retry = Retry(connect=3, backoff_factor=0.5)
@@ -20,6 +20,3 @@ url = "http://195.2.93.26/api/tasks/1/"
 
 x = callback_constructor(3)
 print(x)
-
-
-

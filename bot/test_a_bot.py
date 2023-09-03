@@ -25,70 +25,42 @@ from telegram.ext import (
 from urllib3.util.retry import Retry
 
 from callbacks import (
-    END_ROUTES,
-    FOUR,
-    FIVE,
-    SIX,
-    ONE,
-    START_ROUTES,
-    THREE,
-    TWO,
-    four,
-    one,
-    back,
-    apply,
-    three,
-    two,
-    callback_constructor,
+    TaskCallbacks,
+    SignUp,
+    StateConstants,
 )
 from test_util import GREETINGS, keyboard_constructor
+from commands import profile, start, catificate, dogificate, echo
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO,
 )
 
 logger = logging.getLogger(__name__)
 load_dotenv()
 
-TOKEN = getenv('TEST_BOT_TOKEN')
+TOKEN = getenv('BOT_TOKEN')
 CAT = getenv('CAT_URL')
 DOG = getenv('DOG_URL')
 
 
-def get_a_pet(api: str) -> str:
-    response = requests.get(api).json()[0]
-    url = response.get('url')
+# async def _start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+#     # Get user that sent /start and log his name
+#     # await context.bot.set_chat_menu_button(MenuButtonCommands)
 
-    return url
+#     user = update.message.from_user
+#     logger.info('User %s started the conversation.', user.first_name)
 
+#     chat = update.effective_chat
+#     name = update.message.chat.first_name
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Get user that sent /start and log his name
-    # await context.bot.set_chat_menu_button(MenuButtonCommands)
+#     buttons = ReplyKeyboardMarkup([['/task', '/cat', '/dog'],], resize_keyboard=True,)
 
-    user = update.message.from_user
-    logger.info('User %s started the conversation.', user.first_name)
+#     menu_button_1 = MenuButton(str)
 
-    chat = update.effective_chat
-    name = update.message.chat.first_name
-
-    buttons = ReplyKeyboardMarkup(
-        [['/task', '/cat', '/dog'],], resize_keyboard=True,
-    )
-
-    menu_button_1 = MenuButton(str)
-
-    await context.bot.send_message(
-        chat_id=chat.id, text=GREETINGS[0] % name, reply_markup=buttons,
-    )
-
-
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text=f'id: {update.effective_chat.id}, text: {update.message.text}',
-    )
+#     await context.bot.send_message(
+#         chat_id=chat.id, text=GREETINGS[0] % name, reply_markup=buttons,
+#     )
 
 
 async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -118,49 +90,24 @@ async def task(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
     # Send message with text and appended InlineKeyboard
     await update.message.reply_text(
-        'Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте!',
-        reply_markup=reply_markup,
+        'Отвѣты внизу, одинъ изъ нихъ вѣренъ - дерзайте!', reply_markup=reply_markup,
     ),
 
     # reply_markup
     # Tell ConversationHandler that we're in state `FIRST` now
-    return START_ROUTES
-
-
-async def catificate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Функция - котификатор."""
-    url = get_a_pet(CAT)
-
-    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=url)
-
-
-async def dogificate(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """Собакирование."""
-    url = get_a_pet(DOG)
-
-    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=url)
-
-
-# ------------------------------------------------------------------------------
+    return StateConstants.START_ROUTES
 
 
 if __name__ == '__main__':
-    # Instead of running single handlers in a non-blocking way, we can tell
-    # the Application to run the whole call of Application.process_update concurrently:
     app = ApplicationBuilder().token(TOKEN).concurrent_updates(True).build()
 
     start_handler = CommandHandler('start', start)
-    cat_handler = CommandHandler('cat', catificate)
-    dog_handler = CommandHandler('dog', dogificate)
 
     task_handler = CommandHandler('task', task)
-
-    # quiz callback routes: ########################################
-
     quiz_callbacks = []
 
     for raw_number in range(1, 9):
-        quiz_callbacks.append(callback_constructor(raw_number))
+        quiz_callbacks.append(TaskCallbacks.callback_constructor(raw_number))
 
     start_routes = []
 
@@ -170,45 +117,82 @@ if __name__ == '__main__':
         )
 
     service_callbacks = [
-        CallbackQueryHandler(back, pattern='^' + str(0) + '$'),
-        CallbackQueryHandler(apply, pattern='^' + str(1) + '$'),
+        CallbackQueryHandler(TaskCallbacks.back, pattern='^' + str(0) + '$'),
+        CallbackQueryHandler(TaskCallbacks.apply, pattern='^' + str(1) + '$'),
     ]
 
     routes = start_routes + service_callbacks
 
-    # ##############################################################
-
     task_handler = ConversationHandler(
         entry_points=[CommandHandler('task', task)],
-        states={
-            START_ROUTES: routes,
-            # [
-            #     CallbackQueryHandler(one, pattern="^" + str(2) + "$"),
-            #     CallbackQueryHandler(two, pattern="^" + str(3) + "$"),
-            #     CallbackQueryHandler(three, pattern="^" + str(4) + "$"),
-            #     CallbackQueryHandler(four, pattern="^" + str(5) + "$"),
-            #     # CallbackQueryHandler(five, pattern="^" + str(6) + "$"),
-            #     # CallbackQueryHandler(six, pattern="^" + str(7) + "$"),
-            #     # CallbackQueryHandler(seven, pattern="^" + str(8) + "$"),
-            #     # CallbackQueryHandler(eight, pattern="^" + str(9) + "$"),
-            #     CallbackQueryHandler(back, pattern="^" + str(0) + "$"),
-            #     CallbackQueryHandler(apply, pattern="^" + str(1) + "$"),
-            # ],
-            END_ROUTES: [],
-        },
+        states={StateConstants.START_ROUTES: routes, StateConstants.END_ROUTES: [],},
         fallbacks=[CommandHandler('task', task)],
     )
 
+    signup_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler('start', start),
+            CommandHandler('profile', profile),
+        ],
+        states={
+            StateConstants.SIGN_UP: [
+                CallbackQueryHandler(
+                    SignUp.gender_choose,
+                    pattern='^' + str(StateConstants.ADD_USER) + '$',
+                ),
+                # CallbackQueryHandler(stop, pattern='^' + str(END) + '$'),
+            ],
+            StateConstants.GENDER_CHOICE: [
+                CallbackQueryHandler(
+                    SignUp.name_input,
+                    pattern='^'
+                    + str(StateConstants.M)
+                    + '|'
+                    + str(StateConstants.F)
+                    + '$',
+                ),
+                CallbackQueryHandler(
+                    SignUp.name_input,
+                    pattern='^' + str(StateConstants.SKIP_GENDER) + '$',
+                ),
+            ],
+            StateConstants.NAME_CHOICE: [
+                CallbackQueryHandler(
+                    SignUp.ask_name, pattern='^' + str(StateConstants.INPUT_NAME) + '$'
+                ),
+                CallbackQueryHandler(
+                    SignUp.grade_input,
+                    pattern='^' + str(StateConstants.SKIP_NAME) + '$',
+                ),
+            ],
+            StateConstants.GRADE_CHOICE: [
+                CallbackQueryHandler(
+                    SignUp.ask_grade,
+                    pattern='^' + str(StateConstants.INPUT_GRADE) + '$',
+                ),
+                CallbackQueryHandler(
+                    SignUp.finish_sign_up, pattern='^' + str(StateConstants.END) + '$'
+                ),
+            ],
+            StateConstants.TYPING: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, SignUp.save_input)
+            ],
+            StateConstants.STOPPING: [
+                CommandHandler('start', start),
+                # CallbackQueryHandler(stop, pattern='^' + str(END) + '$'),
+            ],
+        },
+        fallbacks=[],
+    )
+
     # echo of non-empty, non-command messages
-    echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
+    # echo_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), echo)
 
     # may be "add_handlerS" instead?
 
     app.add_handler(start_handler)
-    app.add_handler(echo_handler)
-    app.add_handler(cat_handler)
-    app.add_handler(dog_handler)
 
+    app.add_handler(signup_handler)
     app.add_handler(task_handler)
 
-    app.run_polling()
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
